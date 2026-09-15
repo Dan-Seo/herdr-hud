@@ -1,0 +1,10 @@
+{
+  "name": "herdr-hud",
+  "version": "0.1.0",
+  "description": "A read-only HUD above the Claude Code prompt showing the agents running in Herdr (name, kind, status), refreshed every 2 seconds. Needs function hooks (early access) and an interactive terminal.",
+  "author": { "name": "emper" },
+  "homepage": "https://github.com/emper/herdr-hud",
+  "repository": "https://github.com/emper/herdr-hud",
+  "license": "MIT",
+  "keywords": ["herdr", "hud", "agents", "terminal", "function-hooks", "mods"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "herdr-hud",
+  "description": "herdr-hud: Herdr agent status above the Claude Code prompt.",
+  "owner": { "name": "Dan-Seo" },
+  "plugins": [
+    {
+      "name": "herdr-hud",
+      "source": "./",
+      "description": "Herdr agent status HUD above the Claude Code prompt (function hooks, early access)."
+    }
+  ]
+}
