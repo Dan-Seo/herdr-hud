@@ -23,6 +23,9 @@ export type HudLine = { text: string; color?: string; dim?: boolean; bold?: bool
 export type HudView = { lines: HudLine[] }
 
 const TITLE = 'HERDR'
+// the engine's row budget for the band can be as small as 3 on a short terminal; below this the
+// band scrolls (its own `n more` row) instead of the HUD hiding nearly everything
+const MIN_ROWS = 6
 const NAME_MAX = 20
 const KIND_MAX = 8
 
@@ -36,7 +39,7 @@ const fit = (s: string, width: number) => (s.length > width ? `${s.slice(0, Math
  */
 export function hudView(state: HerdrState, size: { columns: number; maxRows: number }): HudView {
   const columns = Math.max(8, size.columns)
-  const rows = Math.max(2, size.maxRows)
+  const rows = Math.max(MIN_ROWS, size.maxRows)
   const title: HudLine = { text: TITLE, bold: true, dim: true }
 
   if (!state.connected) {

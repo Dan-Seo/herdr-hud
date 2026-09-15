@@ -37,9 +37,16 @@ test('the colour is never the only signal: each status has its own symbol', () =
 
 test('more agents than rows: the budget is kept and the rest is counted', () => {
   const many = Array.from({ length: 12 }, (_, i) => agent(`agent${i}`, 'claude', 'working'))
-  const lines = texts(connected(...many), 80, 5)
-  assert.equal(lines.length, 5)
-  assert.equal(lines.at(-1), '+ 9 more')
+  const lines = texts(connected(...many), 80, 8)
+  assert.equal(lines.length, 8)
+  assert.equal(lines.at(-1), '+ 6 more')
+})
+
+test('a tiny row budget still shows a few rows; the band scrolls the rest', () => {
+  const many = Array.from({ length: 12 }, (_, i) => agent(`agent${i}`, 'claude', 'working'))
+  const lines = texts(connected(...many), 80, 3)
+  assert.equal(lines.length, 6)
+  assert.equal(lines.at(-1), '+ 8 more')
 })
 
 test('a long name is cut and rows never exceed the width', () => {

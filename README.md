@@ -26,7 +26,9 @@ HERDR
 
 (the real fallback row appends a short reason after `not connected`).
 
-If there are more agents than rows available, the last row becomes `+ N more`.
+If there are more agents than rows available, the last row becomes `+ N more`. The row budget is
+what Claude Code gives the band (`maxRows`, as small as 3 on a short terminal), floored at 6 rows
+so a handful of agents stays visible; the band itself scrolls (and collapses with `[-]`).
 
 ## Requirements
 
@@ -132,6 +134,8 @@ Three files, split so that everything except the hook wiring is pure and directl
 - **Agent names** come from the Herdr live agent name, else the pane's stripped title, else the
   pane id.
 - **Windows** has only been tested on the author's machine.
+- **Live shutdown of Herdr** was verified only in the hook tests (the CLI's exit-1 answer): the
+  author's own sessions run inside Herdr, so the server could not be stopped underneath them.
 
 ## ⚠️ Early access
 
