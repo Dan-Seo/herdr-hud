@@ -1,12 +1,12 @@
 {
   "name": "herdr-hud",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Herdr agent status HUD above the Claude Code prompt (Claude Code mod / function hooks)",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/unit/client.spec.ts tests/unit/hud.spec.ts",
+    "test": "node --test tests/unit/client.spec.ts tests/unit/hud.spec.ts tests/unit/job.spec.ts tests/unit/runner.spec.ts",
     "test:hooks": "claude plugin test .",
     "typecheck": "tsc -p tsconfig.json",
     "validate": "claude plugin validate ."

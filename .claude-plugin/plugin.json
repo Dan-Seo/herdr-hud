@@ -1,10 +1,40 @@
 {
   "name": "herdr-hud",
-  "version": "0.2.0",
-  "description": "A read-only HUD above the Claude Code prompt showing the agents running in Herdr (name, kind, status), refreshed every 2 seconds. Needs function hooks (early access) and an interactive terminal.",
-  "author": { "name": "emper" },
-  "homepage": "https://github.com/emper/herdr-hud",
-  "repository": "https://github.com/emper/herdr-hud",
+  "version": "0.3.0",
+  "description": "A read-only HUD above the Claude Code prompt showing the agents running in Herdr (name, kind, status), refreshed every 2 seconds. Opt-in: herdr_delegate hands a read-only Codex review to a plugin-owned Herdr pane. Needs function hooks (early access) and an interactive terminal.",
+  "author": { "name": "Dan-Seo" },
+  "homepage": "https://github.com/Dan-Seo/herdr-hud",
+  "repository": "https://github.com/Dan-Seo/herdr-hud",
   "license": "MIT",
-  "keywords": ["herdr", "hud", "agents", "terminal", "function-hooks", "mods"]
+  "keywords": ["herdr", "hud", "agents", "terminal", "function-hooks", "mods", "codex", "delegate"],
+  "userConfig": {
+    "delegate": {
+      "type": "boolean",
+      "title": "Codex delegate",
+      "description": "Register herdr_delegate / herdr_collect: Claude can hand a read-only code review to a Codex job in a Herdr pane this plugin owns. Uses your Codex account.",
+      "default": false
+    },
+    "delegateMaxCalls": {
+      "type": "number",
+      "title": "Delegate calls per session",
+      "description": "How many reviews one Claude Code session may start.",
+      "default": 5,
+      "min": 1,
+      "max": 50
+    },
+    "delegateTimeoutMs": {
+      "type": "number",
+      "title": "Review deadline (ms)",
+      "description": "How long a review may run before the job is marked timed out (the worker is not killed). 60000 to 1800000.",
+      "default": 600000,
+      "min": 60000,
+      "max": 1800000
+    },
+    "delegateCodexModel": {
+      "type": "string",
+      "title": "Codex model",
+      "description": "Passed to codex exec -m when set; empty uses Codex's own default. Not validated against the installed Codex.",
+      "default": ""
+    }
+  }
 }

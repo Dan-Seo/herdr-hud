@@ -18,9 +18,13 @@ export const COLOR: Record<AgentStatus, string> = {
   unknown: 'gray',
 }
 
-export type HudLine = { text: string; color?: string; dim?: boolean; bold?: boolean; paneId?: string }
+/** `worker`: the row is the delegate job's pane (no agent in it), so a click focuses it by pane, not by agent. */
+export type HudLine = { text: string; color?: string; dim?: boolean; bold?: boolean; paneId?: string; worker?: boolean }
 
 export type HudView = { lines: HudLine[] }
+
+/** The delegate job row, when the feature is on and a job exists; drawn under its own DELEGATE title. */
+export type HudJob = { status: 'queued' | 'starting' | 'running' | 'completed' | 'failed' | 'timed_out' | 'needs_attention'; text: string; paneId?: string }
 
 const TITLE = 'HERDR'
 // the engine's row budget for the band can be as small as 3 on a short terminal; below this the
@@ -37,7 +41,15 @@ const fit = (s: string, width: number) => (s.length > width ? `${s.slice(0, Math
  * The HUD as lines: a title row, then one row per agent, cut to `maxRows` with a `+ N more` row.
  * Rows never exceed `columns` cells; when too narrow for it, the kind column is dropped.
  */
-export function hudView(state: HerdrState, size: { columns: number; maxRows: number }): HudView {
+export function hudView(state: HerdrState, size: { columns: number; maxRows: number }, job?: HudJob): HudView {
+  const view = agentsView(state, size)
+  if (!job) return view
+  const color = job.status === 'completed' ? 'cyan' : job.status === 'failed' ? 'red' : job.status === 'timed_out' || job.status === 'needs_attention' ? 'yellow' : 'green'
+  view.lines.push({ text: 'DELEGATE', bold: true, dim: true }, { text: fit(job.text, Math.max(8, size.columns)), color, bold: job.status === 'needs_attention', paneId: job.paneId, worker: true })
+  return view
+}
+
+function agentsView(state: HerdrState, size: { columns: number; maxRows: number }): HudView {
   const columns = Math.max(8, size.columns)
   const rows = Math.max(MIN_ROWS, size.maxRows)
   const title: HudLine = { text: TITLE, bold: true, dim: true }

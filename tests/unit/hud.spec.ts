@@ -60,3 +60,25 @@ test('a narrow terminal drops the kind column rather than wrapping', () => {
   assert.deepEqual(lines, ['HERDR', '● main working'])
   assert.ok(lines.every(l => l.length <= 18))
 })
+
+test('a delegate job adds a DELEGATE title and one row that names the job, not an agent', () => {
+  const view = hudView(connected(agent('main', 'claude', 'working')), { columns: 80, maxRows: 20 }, { status: 'running', text: 'review · running · 38s', paneId: 'w1:p9' })
+  const lines = view.lines.map(l => l.text)
+  assert.deepEqual(lines.slice(-2), ['DELEGATE', 'review · running · 38s'])
+  assert.equal(view.lines.at(-1)?.paneId, 'w1:p9')
+  const done = hudView(connected(), { columns: 80, maxRows: 20 }, { status: 'completed', text: 'review · completed · 2 findings' })
+  assert.equal(done.lines.at(-1)?.text, 'review · completed · 2 findings')
+  assert.equal(done.lines.at(-1)?.paneId, undefined)
+})
+
+test('the job row is marked as the worker pane even when its text is cut', () => {
+  const view = hudView(connected(), { columns: 12, maxRows: 20 }, { status: 'running', text: 'review · running · 38s', paneId: 'w1:p9' })
+  const row = view.lines.at(-1)!
+  assert.ok(row.text.endsWith('…') && row.text !== 'review · running · 38s')
+  assert.equal(row.worker, true)
+  assert.ok(view.lines.slice(0, -1).every(l => !l.worker))
+})
+
+test('without a job the HUD is exactly as before', () => {
+  assert.deepEqual(texts(connected(agent('main', 'claude', 'working')), 80), ['HERDR', '● main Claude working'])
+})
