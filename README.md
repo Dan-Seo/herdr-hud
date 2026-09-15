@@ -4,7 +4,7 @@ A Claude Code mod (function-hooks plugin) that draws a small read-only HUD direc
 Claude Code prompt, showing the agents running in [Herdr](https://herdr.dev) — each
 agent's name, kind and status — refreshed every 2 seconds.
 
-It does not change anything in Herdr or in your session. It only looks.
+It does not change anything in your session. Its one action in Herdr is focusing the pane whose row you click.
 
 ## What it looks like
 
@@ -129,7 +129,8 @@ Three files, split so that everything except the hook wiring is pure and directl
 - **Polling, not push.** A hooks module has no network or socket access — only `$.process.run` —
   so the HUD shells out to the CLI on a timer rather than subscribing to Herdr's socket.
 - **Terminal only.** Nothing is drawn in `-p` runs, the desktop app, or mobile.
-- **Read-only.** No click-to-focus, no interaction of any kind yet.
+- **One interaction only.** Clicking an agent row runs `herdr agent focus <pane>` to bring that pane
+  to the front in Herdr; nothing else is interactive yet.
 - **The band takes 2+ rows** of your terminal, above the prompt.
 - **Agent names** come from the Herdr live agent name, else the pane's stripped title, else the
   pane id.
@@ -144,9 +145,8 @@ When they do, this plugin may break and need updating. Pin versions if that matt
 
 ## Roadmap
 
-Not implemented, just ideas:
+Done: click a row to focus that Herdr pane (v0.2.0). Not implemented, just ideas:
 
-- Click a row to focus that Herdr pane
 - Refresh and new-agent buttons
 - Sending a prompt to a blocked agent
 

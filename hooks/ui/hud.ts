@@ -18,7 +18,7 @@ export const COLOR: Record<AgentStatus, string> = {
   unknown: 'gray',
 }
 
-export type HudLine = { text: string; color?: string; dim?: boolean; bold?: boolean }
+export type HudLine = { text: string; color?: string; dim?: boolean; bold?: boolean; paneId?: string }
 
 export type HudView = { lines: HudLine[] }
 
@@ -63,7 +63,7 @@ export function hudView(state: HerdrState, size: { columns: number; maxRows: num
     const cells = withKind
       ? `${SYMBOL[a.status]} ${name} ${fit(capitalize(a.kind), kindW).padEnd(kindW)} ${a.status}`
       : `${SYMBOL[a.status]} ${name} ${a.status}`
-    lines.push({ text: fit(cells, columns), color: COLOR[a.status], bold: a.status === 'blocked' })
+    lines.push({ text: fit(cells, columns), color: COLOR[a.status], bold: a.status === 'blocked', paneId: a.paneId })
   }
   if (hidden > 0) lines.push({ text: `+ ${hidden} more`, dim: true })
   return { lines }

@@ -1,6 +1,6 @@
 {
   "name": "herdr-hud",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Herdr agent status HUD above the Claude Code prompt (Claude Code mod / function hooks)",
   "license": "MIT",

@@ -33,7 +33,9 @@ function textOf(tree: unknown): string {
   if (typeof tree === 'string' || typeof tree === 'number') return String(tree)
   if (Array.isArray(tree)) return tree.map(textOf).join('')
   if (typeof tree !== 'object' || !tree) return ''
-  return textOf(Reflect.get(tree, 'children') ?? [])
+  const props: unknown = Reflect.get(tree, 'props')
+  const label = typeof props === 'object' && props ? Reflect.get(props, 'label') : undefined
+  return `${typeof label === 'string' ? label : ''}${textOf(Reflect.get(tree, 'children') ?? [])}`
 }
 
 /** Answers session.start and the band beneath the mod, and process.run from `answers`, in order (the last repeats). */
@@ -119,6 +121,16 @@ describe('register', () => {
     await clock.settle()
     await clock.advance(POLL_MS * 3)
     expect(counts.invalidations).toBe(1)
+  })
+
+  test('pressing a row focuses that pane in Herdr', async ($, on) => {
+    const { argvs, clock } = world(on, [listing([claude('w1:p1', 'main', 'working'), codex('w1:p7', 'tests', 'done')])])
+    await $.session.start(SESSION)
+    await clock.settle()
+    await $.ui.render(BAND)
+    expect(await $.ui.press({ plugin: 'herdr-hud', key: 'row:w1:p7' })).toEqual({ element: 'row:w1:p7' })
+    await clock.settle()
+    expect(argvs.at(-1)).toEqual(['herdr', 'agent', 'focus', 'w1:p7'])
   })
 
   test('a survey in the band wins; the mod passes', async ($, on) => {

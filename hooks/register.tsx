@@ -16,6 +16,16 @@ type Hud = { state: HerdrState; key: string; inflight: boolean }
 
 // Declared at the top of the file: the engine reads `$` only at `$.noun.event(...)` call sites and
 // in a top-level function it is passed to, so the poll cannot live inside register's closure.
+/** A row's click: bring that pane to the front in Herdr. Every HUD row hosts an agent, so `agent focus` resolves its pane id. */
+async function focusPane($: EngineInterface, paneId: string) {
+  try {
+    const run = await $.process.run(['herdr', 'agent', 'focus', paneId], { timeoutMs: RUN_TIMEOUT_MS })
+    if (run.exitCode !== 0) $.ui.toast(`herdr-hud: could not focus ${paneId}`)
+  } catch (err) {
+    $.ui.toast(`herdr-hud: could not focus ${paneId}: ${messageOf(err)}`)
+  }
+}
+
 async function poll($: EngineInterface, hud: Hud) {
   if (hud.inflight) return
   hud.inflight = true
@@ -53,15 +63,21 @@ export const register: Register = on => {
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.surface !== 'terminal' || e.props.hasSurvey) return next(e)
-    const { Box, Text } = $.ui.resolve(e)
+    const { Box, Button, Text } = $.ui.resolve(e)
     const { lines } = hudView(hud.state, { columns: e.props.bodyColumns, maxRows: e.props.maxRows })
+    // an agent row is a plain Button (no chrome, no hotkey: a band hotkey would fire on a digit typed
+    // as the first character of a prompt); a click brings that pane to the front in Herdr
     return (
       <Box flexDirection="column">
-        {lines.map((line, i) => (
-          <Text key={`hud:${i}`} color={line.color} dimColor={line.dim} bold={line.bold} wrap="truncate-end">
-            {line.text}
-          </Text>
-        ))}
+        {lines.map((line, i) =>
+          line.paneId ? (
+            <Button key={`row:${line.paneId}`} label={line.text} plain dimColor={line.dim} onPress={() => void focusPane($, line.paneId!)} />
+          ) : (
+            <Text key={`hud:${i}`} color={line.color} dimColor={line.dim} bold={line.bold} wrap="truncate-end">
+              {line.text}
+            </Text>
+          ),
+        )}
         {await next(e)}
       </Box>
     )
