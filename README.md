@@ -10,6 +10,30 @@ Opt-in (off by default): a `herdr_delegate` tool that lets Claude hand a **read-
 your uncommitted changes to a Codex job running in a Herdr pane the plugin owns, and read the result
 back. See [Codex delegate](#codex-delegate-opt-in).
 
+## What it does
+
+**HUD (on by default)**
+
+- Every 2 s it reads `herdr agent list` and draws one row per agent: name, kind, status. Status
+  is carried by a symbol as well as a colour.
+- Clicking a row focuses that pane in Herdr. That is the only thing it does in Herdr.
+- With Herdr missing or down, the band says `not connected` and the session is unaffected.
+
+**Codex delegate (opt-in, off by default)**
+
+- `herdr_delegate` snapshots the uncommitted tracked changes (staged and unstaged), queues a
+  read-only review, and answers a `taskId`. The review runs as `codex exec --sandbox read-only` in
+  a Herdr pane the plugin split for itself.
+- `herdr_collect` answers the job's status (`queued`, `starting`, `running`, `completed`, `failed`,
+  `timed_out`, `needs_attention`) and, when completed, findings with file, line, severity and
+  evidence. It marks the result `stale` when the tree changed since the snapshot and always says
+  `testsRun: false`.
+- The HUD gains a `DELEGATE` row (`review · running · 38s`); clicking it focuses the worker pane.
+- `.env`, key and credential files are excluded from the packet; untracked files are named, not
+  sent. No user pane is touched, no key is pressed, nothing is approved, retried, fixed or
+  committed. Calls per session and the time per review are capped. Results are presented to
+  Claude as an external opinion to verify, never as instructions.
+
 ## What it looks like
 
 ```
@@ -105,12 +129,17 @@ row is clickable while it has a pane and focuses the worker pane.
   `--dangerously-*` flag. That the sandbox blocks every write on Windows was **not** verified here.
 - A session running inside the worker pane (which carries `HERDR_HUD_DELEGATE_WORKER=1`) registers no
   delegate tools, so a worker cannot delegate again.
-- One job at a time per session; the same tool call retried answers the job it already started.
+- One job at a time per session; the same tool call retried answers the job it already started,
+  and a second call arriving while the first is still starting is refused.
 
 ### Review scope and exclusions
 
 - In: tracked files changed against `HEAD`, staged and unstaged, as one diff (cut at 200 000
-  characters with a note). Codex may read other files in the repository for context.
+  characters with a note; the snapshot hash covers the whole diff). Codex may read other files in
+  the repository for context.
+- Paths are taken from the repository root (`git rev-parse --show-toplevel`), whatever directory
+  the session runs in, and passed to git as literal pathspecs so a file named `*` cannot widen the
+  diff.
 - Named only, never sent: untracked files.
 - Excluded by path pattern: `.env*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `id_rsa*`, `credentials*`,
   `secrets*`, `.netrc`, `.npmrc`, `.pypirc`. This is a short list, not a secret scanner.
